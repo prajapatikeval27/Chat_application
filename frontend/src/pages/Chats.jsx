@@ -15,7 +15,7 @@ const Chats = () => {
     // Use a flag to track WebSocket connection status
     const [isConnected, setIsConnected] = useState(true)
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     const fetchUsers = async (user_id) => {
         setIsLoading(true);
         try{
@@ -87,7 +87,6 @@ const Chats = () => {
             console.error('Error creating chat:', err);
         }
     }
-
 
     const deleteChat = (id) => {
         api

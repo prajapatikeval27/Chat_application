@@ -52,21 +52,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message_type = text_data_json.get('message_type')
-        
+        if text_data_json.get('token'):
+            try:
+                token = text_data_json['token']
+                decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.SIMPLE_JWT['ALGORITHM']])
+                self.user_id = decoded_token.get('user_id')
+            except jwt.exceptions.JWTDecodeError:
+                print("Invalid token format")
+
         if message_type == "onopen":
             chat_id = text_data_json.get('chat_id')
+            # is_read = self.is_message_read(message, self.user_id)
             await self.send_data(chat_id)
+            
         else:
-            if text_data_json.get('token'):
-                try:
-                    token = text_data_json['token']
-                    decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.SIMPLE_JWT['ALGORITHM']])
-                    self.user_id = decoded_token.get('user_id')
-                except jwt.exceptions.JWTDecodeError:
-                    print("Invalid token format")
 
             response, user = await self.create_message(text_data_json, self.user_id)
-            # user = Profile.objects.get(pk=self.user_id)
+            
             username = user.username
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -85,15 +87,26 @@ class ChatConsumer(AsyncWebsocketConsumer):
         messages = chat.messages.all()
         data = []
         for message in messages:
+            is_read = self.is_message_read(message)
+            if is_read:
+                message.is_read = True
+                message.save()
             msg = {
                 "user_id": message.sender.id,
                 "sender": message.sender.username,
-                "message": message.message
+                "message": message.message,
+                "is_read": message.is_read
             }
             data.append(msg)
 
         return data
     
+    # @sync_to_async
+    def is_message_read(self, message):
+        if message.sender.id != self.user_id:
+            return True
+        return False
+
     async def send_data(self, chat_id):
         messages = await self.get_messages_json(chat_id)
         await self.channel_layer.group_send(

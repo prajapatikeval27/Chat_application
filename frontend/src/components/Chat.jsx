@@ -3,12 +3,12 @@ import api from '../api';
 import { ACCESS_TOKEN } from "../constraints";
 import Message from './Message';
 import {jwtDecode} from 'jwt-decode';
+import { Scrollbar } from 'react-scrollbars-custom';
 
 function Chat({ chatDetail }) {
     const [message, setMessage] = useState([])
     const [messages, setMessages] = useState([])
     const [isConnected, setIsConnected] = useState(false)
-    const [isSenderMe, setIsSenderMe] = useState(true)
     const [userId, setUserId] = useState(null);
     const { id, displayName, email, ...otherProperties } = chatDetail;
     
@@ -63,13 +63,14 @@ function Chat({ chatDetail }) {
 
     return (
         <>
-            <div  className='flex flex-col h-full justify-between'>
+            <div className='flex flex-col h-[81vh] justify-between'>
                 <div className='bg-gray-100 px-3 py-4'>
                     <div className='font-semibold'>
                         {displayName}
                     </div>
                 </div>
-                <div>
+                <div className='h-full'>
+                    <Scrollbar style={{ width: '100%', height: '100%' }}>
                     <div className='flex flex-col gap-2 m-3'>
                         {messages.length > 0 ? (
                             messages.map((message, index) => (
@@ -77,15 +78,19 @@ function Chat({ chatDetail }) {
                                                     p-1 
                                                     flex 
                                                     ${message.user_id == userId ? 'justify-end' : 'justify-start'}`}>
-                                    <Message sender={message.sender} message={message.message} isSenderMe={message.user_id == userId}/>
+                                    <Message sender={message.sender} message={message.message} 
+                                                isSenderMe={message.user_id == userId} is_read={message.is_read}/>
+                                    
                                 </div>
+                                
                             ))
                         ) : (
                             <p>No messages yet.</p>
                         )}
                         
                     </div>
-                    <div className='w-full px-4 pb-3'>
+                    </Scrollbar>
+                    <div className='w-full px-4 pb-3 mt-3'>
                         <form className="flex gap-3" onSubmit={sendMessage}>
                         <input type="text" className='bg-gray-100 w-full px-3 py-3' placeholder='Send'
                                 onChange={(e) => setMessage(e.target.value)}
