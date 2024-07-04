@@ -24,7 +24,3 @@ npm i
 # start the server
 npm run dev
 ```
-
-## TIP:
-
-Create a ai chat user to use the ai chat.
