@@ -61,7 +61,7 @@ class AIConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def generate_ai_response(self, prompt):
-        genai.configure(api_key="AIzaSyDoE4HmW_xuzr4AJ-iWwg9Wx_TakzDuidw")
+        genai.configure(api_key="YOUR_GOOGLE_AI_API_KEY")
         response = genai.generate_text(prompt=prompt)
         return response.result
 
