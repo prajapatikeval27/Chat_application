@@ -36,7 +36,7 @@ class AIConsumer(AsyncWebsocketConsumer):
         try:
             user = Profile.objects.get(pk=user_id)
         except:
-            user = Profile.objects.get(pk=12)
+            user = Profile.objects.get(email="ai@gmail.com")
         try:
             ai = AI.objects.get(pk = ai_id)
             message = Messages.objects.create(
