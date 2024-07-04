@@ -24,3 +24,7 @@ npm i
 # start the server
 npm run dev
 ```
+
+## Tip
+
+To Use a AI Feature you need to create a ai user and set email as a ai@gmail.com
