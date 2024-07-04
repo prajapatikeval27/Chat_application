@@ -25,7 +25,6 @@ function UserProfile() {
     const updateProfile = async (e) => {
         e.preventDefault();
         try{
-            console.log("calling")
             const url = `api/profiles/${id}/`
             const response = await api.patch(url, {
                 email,

@@ -10,7 +10,7 @@ class Profile(AbstractUser):
     username = models.CharField(max_length=100, blank=True, null=True)
     last_name = models.CharField(max_length=100, blank=True)
     bio = models.CharField(max_length=1000, blank=True)
-    
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 
@@ -18,6 +18,7 @@ class Profile(AbstractUser):
 
     def __str__(self):
         return str(self.email)
+
 
 class Chats(models.Model):
     participants = models.ManyToManyField(Profile, related_name="chats")
@@ -31,10 +32,17 @@ class Chats(models.Model):
     def __str__(self):
         return f"{self.chat_name}"
 
+class AI(models.Model):
+    user_for = models.ForeignKey(Profile, related_name="ai", on_delete=models.CASCADE)
+    ai_name = models.CharField(default="Personal AI", max_length=100)
+
 class Messages(models.Model):
-    chat = models.ForeignKey(Chats, on_delete=models.CASCADE, related_name="messages")
-    sender = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    ai = models.ForeignKey(AI, on_delete=models.CASCADE, related_name="messages", default=False, blank=True, null=True)
+    chat = models.ForeignKey(Chats, on_delete=models.CASCADE, related_name="messages", default=False, blank=True, null=True)
+    sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="messages", default=False, blank=True, null=True)
+    is_deleted = models.BooleanField(default=False)
     message = models.TextField()
+    is_edited = models.BooleanField(default=False)
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

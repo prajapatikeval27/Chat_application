@@ -4,6 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'chats', views.ChatViewSet, basename='chats')
+router.register(r'ai', views.AIViewSet, basename='ai')
 router.register(r'messages', views.MessageViewSet, basename='messages')
 router.register(r'profiles', views.ProfileViewSet, basename='profiles')
 router.register(r'individual_profile', views.IndividualProfileViewSet, basename='individual_profile')

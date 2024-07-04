@@ -1,8 +1,8 @@
 from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import Profile, Chats, Messages
-from .serializers import ProfileSerializer, ChatSerializer, MessageSerializer
+from .models import Profile, Chats, Messages, AI
+from .serializers import ProfileSerializer, ChatSerializer, MessageSerializer, AISerializer
 from rest_framework.response import Response
 from django.db.models import Q
 
@@ -39,6 +39,16 @@ class IndividualProfileViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return [user]
 
+class AIViewSet(viewsets.ModelViewSet):
+    queryset = AI.objects.all()
+    serializer_class = AISerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        ai = AI.objects.filter(user_for=user.id).prefetch_related('user_for')
+        return ai
+
 class ChatViewSet(viewsets.ModelViewSet):
     queryset = Chats.objects.all()
     serializer_class = ChatSerializer
@@ -46,7 +56,7 @@ class ChatViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        chats = Chats.objects.filter(participants=user.id).prefetch_related('participants')  # Pre-fetch participants
+        chats = Chats.objects.filter(participants=user.id).prefetch_related('participants')
         return chats
 
     def create(self, request, *args, **kwargs):
@@ -103,10 +113,18 @@ class ChatViewSet(viewsets.ModelViewSet):
         except Chats.DoesNotExist:
             return Response({'error': 'Chat not found'}, status=404)
         except Exception as e:
-            print(e)
             return Response({'error': 'An error occurred'}, status=500)
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Messages.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
+
+    def destroy(self, request, pk=None):
+        message = self.get_object()
+
+        if message.sender == request.user:  # Check if user is the chat owner
+            message.delete()
+            return Response(status=204)
+        else:
+            return Response({'error': 'You can only delete chats you created.'}, status=403)

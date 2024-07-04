@@ -1,4 +1,4 @@
-from .models import Profile, Chats, Messages
+from .models import Profile, Chats, Messages, AI
 from rest_framework import serializers
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -30,3 +30,20 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Messages
         fields = '__all__'
+
+class AISerializer(serializers.ModelSerializer):
+    messages = serializers.SerializerMethodField()
+    class Meta:
+        model = AI
+        fields = '__all__'
+        
+    def get_messages(self, obj):
+        data = []
+        for message in obj.messages.all():
+            dict = {
+                "id": message.id,
+                "sender": message.sender.id,
+                "created_at": message.created_at
+            }
+            data.append(dict)
+        return data
